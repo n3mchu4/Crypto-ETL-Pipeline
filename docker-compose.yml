@@ -1,0 +1,6 @@
+services:
+  extract:
+    build: .
+    container_name: crypto-etl-extract
+    volumes:
+      - ./data:/app/data
