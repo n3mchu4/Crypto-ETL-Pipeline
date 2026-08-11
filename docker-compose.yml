@@ -7,13 +7,51 @@ services:
 
   postgres:
     image: postgres:16
-    container_name: postgresSQL
+    environment:
+      POSTGRES_USER: CRYPTO
+      POSTGRES_PASSWORD: test_password_123
+      POSTGRES_DB: airflow
+
     volumes:
-      - ./data:/app/data
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U CRYPTO -d airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   airflow-init:
+    image: apache/airflow:3.1.0
+    environment:
+      DB_HOSR: postgresql+psycopg2://CRYPTO:PASSWORD@postgres:5432/airflow
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./extract:/opt/airflow/extract
+    command:
+      - -c
+      - |
+        airflow db migrate
+        airflow users create \
+          --username airflow \
+          --password airflow \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@example.com
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
 
   airflow-webserver:
+      image: apache/airflow:3.1.0
+
 
   airflow-scheduler:
+    image: apache/airflow:3.1.0
 
+
+volumes:
+  postgres_data:
