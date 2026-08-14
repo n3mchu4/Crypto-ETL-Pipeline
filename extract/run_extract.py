@@ -1,4 +1,4 @@
-from coingecko_client import (
+from extract.coingecko_client import (
     fetch_with_retry,
     get_current_prices,
     get_timestamp_filename,
@@ -16,4 +16,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  
