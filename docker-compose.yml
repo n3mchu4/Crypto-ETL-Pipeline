@@ -14,6 +14,7 @@ services:
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U CRYPTO -d airflow"]
       interval: 10s
@@ -23,35 +24,114 @@ services:
 
   airflow-init:
     image: apache/airflow:3.1.0
+    entrypoint: /bin/bash
+
     environment:
-      DB_HOSR: postgresql+psycopg2://CRYPTO:PASSWORD@postgres:5432/airflow
+      PYTHONPATH: /opt/airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://CRYPTO:test_password_123@postgres:5432/airflow
+
     volumes:
+      - ./logs:/opt/airflow/logs
       - ./dags:/opt/airflow/dags
       - ./extract:/opt/airflow/extract
+      - ./data:/opt/airflow/data
+
     command:
       - -c
-      - |
-        airflow db migrate
-        airflow users create \
-          --username airflow \
-          --password airflow \
-          --firstname Admin \
-          --lastname User \
-          --role Admin \
-          --email admin@example.com
+      - airflow db migrate
+
     depends_on:
       postgres:
         condition: service_healthy
 
+  airflow-dag-processor:
+    image: apache/airflow:3.1.0
+    container_name: airflow-dag-processor
 
+    environment:
+      PYTHONPATH: /opt/airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://CRYPTO:test_password_123@postgres:5432/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-webserver:8080/execution/
 
-  airflow-webserver:
-      image: apache/airflow:3.1.0
+    command: airflow dag-processor
 
+    volumes:
+      - ./logs:/opt/airflow/logs
+      - ./dags:/opt/airflow/dags
+      - ./extract:/opt/airflow/extract
+      - ./data:/opt/airflow/data
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+      airflow-webserver:
+        condition: service_healthy
 
   airflow-scheduler:
     image: apache/airflow:3.1.0
+    container_name: airflow-scheduler
 
+    environment:
+      PYTHONPATH: /opt/airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://CRYPTO:test_password_123@postgres:5432/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-webserver:8080/execution/
+
+    volumes:
+      - ./logs:/opt/airflow/logs
+      - ./dags:/opt/airflow/dags
+      - ./extract:/opt/airflow/extract
+      - ./data:/opt/airflow/data
+
+    command: airflow scheduler
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+      airflow-webserver:
+        condition: service_healthy
+
+  airflow-webserver:
+    image: apache/airflow:3.1.0
+    container_name: airflow-webserver
+
+    environment:
+      PYTHONPATH: /opt/airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://CRYPTO:test_password_123@postgres:5432/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__API__SECRET_KEY: "some_random_secret_key_change_me"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "airflow:admin"
+
+    volumes:
+      - ./logs:/opt/airflow/logs
+      - ./dags:/opt/airflow/dags
+      - ./extract:/opt/airflow/extract
+      - ./data:/opt/airflow/data
+
+    ports:
+      - "8081:8080"
+
+    command:
+      - airflow
+      - api-server
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/monitor/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 volumes:
   postgres_data:
