@@ -49,10 +49,12 @@ services:
     container_name: airflow-dag-processor
 
     environment:
+      _PIP_ADDITIONAL_REQUIREMENTS: "requests"
       PYTHONPATH: /opt/airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://CRYPTO:test_password_123@postgres:5432/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-webserver:8080/execution/
+      AIRFLOW__API_AUTH__JWT_SECRET: "some_random_secret_key_change_me"
 
     command: airflow dag-processor
 
@@ -75,10 +77,12 @@ services:
     container_name: airflow-scheduler
 
     environment:
+      _PIP_ADDITIONAL_REQUIREMENTS: "requests"
       PYTHONPATH: /opt/airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://CRYPTO:test_password_123@postgres:5432/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-webserver:8080/execution/
+      AIRFLOW__API_AUTH__JWT_SECRET: "some_random_secret_key_change_me"
 
     volumes:
       - ./logs:/opt/airflow/logs
@@ -101,11 +105,13 @@ services:
     container_name: airflow-webserver
 
     environment:
+      _PIP_ADDITIONAL_REQUIREMENTS: "requests"
       PYTHONPATH: /opt/airflow
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://CRYPTO:test_password_123@postgres:5432/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__API__SECRET_KEY: "some_random_secret_key_change_me"
       AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "airflow:admin"
+      AIRFLOW__API_AUTH__JWT_SECRET: "some_random_secret_key_change_me"
 
     volumes:
       - ./logs:/opt/airflow/logs

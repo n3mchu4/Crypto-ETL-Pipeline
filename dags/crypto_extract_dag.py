@@ -1,10 +1,10 @@
+import sys
+sys.path.append('/opt/airflow/extract')
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-
-from extract.run_extract import main
-
+from run_extract import main
 from datetime import datetime
-
 
 with DAG(
     dag_id="crypto_extract",
@@ -12,7 +12,6 @@ with DAG(
     schedule="@daily",
     catchup=False,
 ) as dag:
-
     extract_task = PythonOperator(
         task_id="extract_crypto_data",
         python_callable=main,
