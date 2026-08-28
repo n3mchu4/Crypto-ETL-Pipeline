@@ -1,0 +1,3 @@
+{"timestamp":"2026-08-25T01:36:54.391015Z","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager","filename":"manager.py","lineno":179}
+{"timestamp":"2026-08-25T01:36:54.393335Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/crypto_extract_dag.py","logger":"airflow.models.dagbag.DagBag","filename":"dagbag.py","lineno":593}
+{"timestamp":"2026-08-25T01:36:54.440584Z","level":"warning","event":"The `airflow.operators.python.PythonOperator` attribute is deprecated. Please use `'airflow.providers.standard.operators.python.PythonOperator'`.","category":"DeprecatedImportWarning","filename":"/opt/airflow/dags/crypto_extract_dag.py","lineno":5,"logger":"py.warnings"}
