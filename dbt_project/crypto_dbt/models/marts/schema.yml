@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: mart_crypto_daily
+    description: "Daily cryptocurrency market summary"
+
+    columns:
+      - name: trade_date
+        description: "Date of the crypto market data"
+        tests:
+          - not_null
+
+      - name: id
+        description: "Cryptocurrency identifier"
+        tests:
+          - not_null
+
+      - name: symbol
+        tests:
+          - not_null
+
+      - name: avg_price
+        tests:
+          - not_null
