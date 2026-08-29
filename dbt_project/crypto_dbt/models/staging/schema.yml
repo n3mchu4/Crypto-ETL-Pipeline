@@ -5,3 +5,20 @@ sources:
     schema: main
     tables:
       - name: raw_crypto_prices
+
+models:
+  - name: stg_crypto_prices
+    description: "Staging model for cryptocurrency market data"
+
+    columns:
+      - name: id
+        tests:
+          - not_null
+
+      - name: symbol
+        tests:
+          - not_null
+
+      - name: name
+        tests:
+          - not_null
