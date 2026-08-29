@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# Data
+data/
+
+# Airflow logs
+logs/
+
+# dbt generated files
+dbt_project/crypto_dbt/target/
+dbt_project/crypto_dbt/dbt_packages/
+dbt_project/crypto_dbt/logs/
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
